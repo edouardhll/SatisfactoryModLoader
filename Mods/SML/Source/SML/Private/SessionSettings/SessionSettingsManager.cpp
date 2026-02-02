@@ -117,7 +117,7 @@ void USessionSettingsManager::OnOptionUpdated(FString String, FVariant Value) co
 FString USessionSettingsManager::SerializeSettingsToString() const {
 	TArray<FString> OptionStrings;
 	
-	for (const TPair<FString, UFGUserSettingApplyType*>& Pair : SessionSettings) {
+	for (const TPair<FString, TObjectPtr<UFGUserSettingApplyType>>& Pair : SessionSettings) {
 		FString Name = Pair.Key;
 		FVariant Value = Pair.Value->GetPendingAppliedValue();
 		if (Value.IsEmpty())
@@ -193,13 +193,13 @@ bool USessionSettingsManager::IsGlobalManager() const {
 }
 
 void USessionSettingsManager::SubscribeToAllOptionUpdates(const FOnOptionUpdated& onOptionUpdatedDelegate) {
-	for (const TTuple<FString, UFGUserSettingApplyType*>& Options : SessionSettings) {
+	for (const TTuple<FString, TObjectPtr<UFGUserSettingApplyType>>& Options : SessionSettings) {
 		Options.Value->AddSubscriber(onOptionUpdatedDelegate);
 	}
 }
 
 void USessionSettingsManager::UnsubscribeToAllOptionUpdates(const FOnOptionUpdated& onOptionUpdatedDelegate) {
-	for (const TTuple<FString, UFGUserSettingApplyType*>& Options : SessionSettings) {
+	for (const TTuple<FString, TObjectPtr<UFGUserSettingApplyType>>& Options : SessionSettings) {
 		Options.Value->RemoveSubscriber(onOptionUpdatedDelegate);
 	}
 }

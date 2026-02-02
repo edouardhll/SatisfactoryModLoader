@@ -226,7 +226,7 @@ public:
     virtual void* GetObjectData() override;
     virtual void AddReferencedObjects(FReferenceCollector& ReferenceCollector) override;
 private:
-    UObject* ReferencedObject;
+    TObjectPtr<UObject> ReferencedObject;
 };
 
 class SML_API FReflectedObjectState_ScriptStruct : public FReflectedObjectState {

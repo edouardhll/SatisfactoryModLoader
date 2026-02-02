@@ -90,7 +90,7 @@ void UModModule::DispatchLifecycleEvent(ELifecyclePhase Phase) {
     EventsReceived.Add(Phase);
     
     //Process phase event on already spawned child modules
-    for (const TPair<FName, UModModule*>& ModModule : ChildModules) {
+    for (const TPair<FName, TObjectPtr<UModModule>>& ModModule : ChildModules) {
         ModModule.Value->DispatchLifecycleEvent(Phase);
     }
     

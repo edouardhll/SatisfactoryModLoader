@@ -8,7 +8,7 @@
 #define LOCTEXT_NAMESPACE "SML"
 
 FString UConfigPropertySection::DescribeValue_Implementation() const {
-    const FString ElementsString = FString::JoinBy(SectionProperties, TEXT(", "), [this](const TPair<FString, UConfigProperty*>& Property) {
+    const FString ElementsString = FString::JoinBy(SectionProperties, TEXT(", "), [this](const TPair<FString, TObjectPtr<UConfigProperty>>& Property) {
         return FString::Printf(TEXT("%s = %s"), *Property.Key, *Property.Value->DescribeValue());
     });
     return FString::Printf(TEXT("[section %s]"), *ElementsString);
@@ -16,7 +16,7 @@ FString UConfigPropertySection::DescribeValue_Implementation() const {
 
 URawFormatValue* UConfigPropertySection::Serialize_Implementation(UObject* Outer) const {
     URawFormatValueObject* ObjectValue = NewObject<URawFormatValueObject>(Outer);
-    for (const TPair<FString, UConfigProperty*>& Property : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Property : SectionProperties) {
         if (Property.Value != NULL) {
             URawFormatValue* RawChildValue = Property.Value->Serialize(ObjectValue);
             if (RawChildValue != NULL) {
@@ -30,7 +30,7 @@ URawFormatValue* UConfigPropertySection::Serialize_Implementation(UObject* Outer
 void UConfigPropertySection::Deserialize_Implementation(const URawFormatValue* Value) {
     const URawFormatValueObject* ObjectValue = Cast<URawFormatValueObject>(Value);
     if (ObjectValue != NULL) {
-        for (const TPair<FString, UConfigProperty*>& Property : SectionProperties) {
+        for (const TPair<FString, TObjectPtr<UConfigProperty>>& Property : SectionProperties) {
             const URawFormatValue* RawChildValue = ObjectValue->GetValue(Property.Key);
             if (Property.Value != NULL && RawChildValue != NULL) {
                 if (!bAllowUserReset || !bParentSectionAllowsUserReset) {
@@ -43,7 +43,7 @@ void UConfigPropertySection::Deserialize_Implementation(const URawFormatValue* V
 }
 
 void UConfigPropertySection::FillConfigStructSelf(const FReflectedObject& ReflectedObject) const {
-    for (const TPair<FString, UConfigProperty*>& Property : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Property : SectionProperties) {
         if (Property.Value != NULL) {
             Property.Value->FillConfigStruct(ReflectedObject, Property.Key);
         }
@@ -66,7 +66,7 @@ bool IsValidConfigIdentifier(const FString& Identifier) {
 #if WITH_EDITOR
 EDataValidationResult UConfigPropertySection::IsDataValid(TArray<FText>& ValidationErrors) {
     EDataValidationResult ValidationResult = EDataValidationResult::Valid;
-    for (const TPair<FString, UConfigProperty*>& Pair : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Pair : SectionProperties) {
         if (!IsValid(Pair.Value)) {
             ValidationErrors.Add(FText::Format(LOCTEXT("ConfigSectionValueNull",
                 "Value '{0}' inside of the Config Section '{1}' is NULL."),
@@ -102,7 +102,7 @@ bool UConfigPropertySection::ResetToDefault_Implementation() {
         return false;
     }
     bool bAnyReset = (SectionProperties.Num() == 0);
-    for (const TPair<FString, UConfigProperty*>& Pair : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Pair : SectionProperties) {
         UConfigProperty* Property = Pair.Value;
         if (Property) {
             bool bResetThisOne = Property->ResetToDefault();
@@ -116,7 +116,7 @@ bool UConfigPropertySection::ResetToDefault_Implementation() {
 }
 
 bool UConfigPropertySection::IsSetToDefaultValue_Implementation() const {
-    for (const TPair<FString, UConfigProperty*>& Pair : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Pair : SectionProperties) {
         UConfigProperty* Property = Pair.Value;
         if (IsValid(Property) && !Property->IsSetToDefaultValue()) {
            return false;
@@ -126,7 +126,7 @@ bool UConfigPropertySection::IsSetToDefaultValue_Implementation() const {
 }
 
 bool UConfigPropertySection::HasResettableChildProperty(bool bIncludeHidden = true) const {
-    for (const TPair<FString, UConfigProperty*>& Pair : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Pair : SectionProperties) {
         UConfigProperty* Property = Pair.Value;
         if (!IsValid(Property)) {
             continue;
@@ -152,7 +152,7 @@ void UConfigPropertySection::HandleMarkDirty_Implementation() {
 FConfigVariableDescriptor UConfigPropertySection::CreatePropertyDescriptor_Implementation(
     UConfigGenerationContext* Context, const FString& OuterPath) const {
     UConfigGeneratedStruct* GeneratedStruct = Context->CreateNewConfigStruct(OuterPath);
-    for (const TPair<FString, UConfigProperty*>& Property : SectionProperties) {
+    for (const TPair<FString, TObjectPtr<UConfigProperty>>& Property : SectionProperties) {
         const FString InnerPath = FString::Printf(TEXT("%s_%s"), *OuterPath, *Property.Key);
         const FConfigVariableDescriptor Descriptor = Property.Value->CreatePropertyDescriptor(Context, InnerPath);
         GeneratedStruct->AddConfigVariable(Descriptor, Property.Key);

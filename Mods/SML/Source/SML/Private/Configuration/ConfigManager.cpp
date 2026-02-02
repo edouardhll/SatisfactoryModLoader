@@ -155,7 +155,7 @@ void UConfigManager::ReinitializeCachedStructs(const FConfigId& ConfigId) {
     const FRegisteredConfigurationData& ConfigurationData = Configurations.FindChecked(ConfigId);
     URootConfigValueHolder* RootConfigValue = ConfigurationData.RootValue;
 
-    for (const TPair<UScriptStruct*, FReflectedObject>& Pair : ConfigurationData.CachedValues) {
+    for (const TPair<TObjectPtr<UScriptStruct>, FReflectedObject>& Pair : ConfigurationData.CachedValues) {
         RootConfigValue->GetWrappedValue()->FillConfigStructSelf(Pair.Value);
     }
 #endif
