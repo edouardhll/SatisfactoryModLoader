@@ -116,8 +116,14 @@ public class PackagePlugin : BuildCookRun
 		return Params;
 	}
 
-	private ParamList<string> GetClientTargetsToCook()
+	private ParamList<string>? GetClientTargetsToCook()
 	{
+		// If we are given explicit targets on the command line, suppress the logic below and let BuildCookRun decide based on -Target= arguments
+		if (ParseParam("target"))
+		{
+			return null;
+		}
+
 		if (!ParseParam("merge"))
 		{
 			// Only build minimal targets in development mode
@@ -141,6 +147,7 @@ public class PackagePlugin : BuildCookRun
 				Logger.LogWarning("No game executable found in game directory, building all targets");
 			}
 		}
+
 		return new ParamList<string>("FactoryGameEGS", "FactoryGameSteam");
 	}
 
