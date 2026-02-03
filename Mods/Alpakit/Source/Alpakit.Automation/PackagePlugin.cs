@@ -238,8 +238,15 @@ public class PackagePlugin : BuildCookRun
 		// All DLC paths are remapped to projectName/Mods/DLCName during RemapCookedPluginsContentPaths, regardless of nesting
 		// so the relative stage path is projectName/Mods/DLCName
 		var projectName = ProjectParams.RawProjectPath.GetFileNameWithoutAnyExtensions();
+
+		var gameFeaturesPluginsRoot = DirectoryReference.Combine(ProjectParams.RawProjectPath.Directory, "Plugins", "GameFeatures");
+		var gameFeaturesModsRoot = DirectoryReference.Combine(ProjectParams.RawProjectPath.Directory, "Mods", "GameFeatures");
+		var isGameFeatureDLC = ProjectParams.DLCFile.IsUnderDirectory(gameFeaturesPluginsRoot) ||
+			ProjectParams.DLCFile.IsUnderDirectory(gameFeaturesModsRoot);
+		
+		// Game features have to stay under Mods/GameFeatures to be picked up by the game as such
 		var dlcName = ProjectParams.DLCFile.GetFileNameWithoutAnyExtensions();
-		return CombinePaths(projectName, "Mods", dlcName);
+		return isGameFeatureDLC ? CombinePaths(projectName, "Mods", "GameFeatures", dlcName) : CombinePaths(projectName, "Mods", dlcName);
 	}
 
 	private static void RemapCookedPluginsContentPaths(ProjectParams ProjectParams, DeploymentContext SC) {

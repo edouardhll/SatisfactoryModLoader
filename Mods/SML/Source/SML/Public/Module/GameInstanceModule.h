@@ -30,17 +30,21 @@ public:
     UPROPERTY(EditDefaultsOnly, Category = "Default")
     TArray<TSubclassOf<UModConfiguration>> ModConfigurations;
 
+	/** Blueprint hooks to apply to the Blueprint assets when this module is loaded */
+	UPROPERTY(EditDefaultsOnly, Category = "Advanced | Hooks")
+	TArray<TSubclassOf<class UBlueprintHook>> BlueprintHooks;
+
     /**
     * List of classes for objects implementing ISMLItemTooltipProvider
     * These will be registered on startup and used to obtain additional description
     * text/widget for all items
     */
     UPROPERTY(EditDefaultsOnly, Category = "Advanced | Tooltips")
-    TArray<TObjectPtr<UClass>> GlobalItemTooltipProviders;
+    TArray<TSoftClassPtr<UObject>> GlobalItemTooltipProviders;
 
-	/** Blueprint hooks to apply to the Blueprint assets when this module is loaded */
+	/** Blueprint hooks to apply to the Blueprint assets when this module is loaded. These hooks will only be applied to the game targets, and not dedicated servers */
 	UPROPERTY(EditDefaultsOnly, Category = "Advanced | Hooks")
-	TArray<TSubclassOf<class UBlueprintHook>> BlueprintHooks;
+	TArray<TSoftClassPtr<UBlueprintHook>> ClientBlueprintHooks;
 
     /**
      * Widget blueprint hooks to add your custom widget into one of the existing game blueprints
